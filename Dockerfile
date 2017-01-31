@@ -57,11 +57,13 @@ RUN apk update && \
         php7-sysvshm \
         php7-wddx \
         php7-session \
+        php7-mbstring \
         musl \
         libmemcached-libs \
         libmemcached-dev \
         zlib \
-        php7 && \
+        php7  \
+        php7-xdebug && \
         ln -s /usr/bin/php7 /usr/bin/php && \
         ln -s /usr/bin/php-config7 /usr/bin/php-config && \
         ln -s /usr/bin/phpize7 /usr/bin/phpize && \
@@ -74,7 +76,7 @@ RUN apk update && \
         mkdir -p /root/src/php_module && \
 
         mkdir -p /pkg
-
+COPY appdynamics-php-agent-x64-linux-4.2.12.1.tar.bz2 /root/src/php_module/appdynamics-php-agent-x64-linux-4.2.12.1.tar.bz2
 COPY php7-memcached-3.0_pre20160808-r0.apk /pkg/php7-memcached-3.0_pre20160808-r0.apk
 RUN  apk add --allow-untrusted /pkg/php7-memcached-3.0_pre20160808-r0.apk 
 
@@ -111,7 +113,15 @@ COPY dockerize /usr/local/bin/dockerize
 
 # copy the modules
 RUN mkdir -p /etc/apache2/modules && \
-    mkdir -p /etc/apache2/conf.modules.d
+    mkdir -p /etc/apache2/conf.modules.d && \
+    echo "zend_extension=xdebug.so" >> /etc/php7/conf.d/xdebug.ini && \
+    echo "xdebug.remote_enable=1" >> /etc/php7/conf.d/xdebug.ini && \
+    echo "xdebug.remote_handler=dbgp xdebug.remote_mode=req" /etc/php7/conf.d/xdebug.ini && \
+    echo "xdebug.remote_host=127.0.0.1 xdebug.remote_port=9000" /etc/php7/conf.d/xdebug.ini && \
+    echo 'xdebug.idekey=idekey' >> /etc/php7/conf.d/xdebug.ini && \
+    echo 'xdebug.remote_connect_back=1' >> /etc/php7/conf.d/xdebug.ini && \
+    echo 'xdebug.remote_autostart=1' >> /etc/php7/conf.d/xdebug.ini && \
+    echo 'opcache.enable=0' >> /etc/php7/conf.d/opcache.ini
 
 COPY conf.modules.d/00-mpm.conf /etc/apache2/conf.modules.d/
 
@@ -119,7 +129,7 @@ WORKDIR /etc/apache2/modules
 
 RUN ln -s /usr/lib/apache2/* . && \
     rm -rf /var/cache/apk/* && \
-    rm -rf /root/src/php_module && \
+    #rm -rf /root/src/php_module && \
     apk del --purge \
         *-dev \
         build-base \
