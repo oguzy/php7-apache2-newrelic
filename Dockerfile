@@ -76,7 +76,7 @@ RUN apk update && \
         mkdir -p /root/src/php_module && \
 
         mkdir -p /pkg
-COPY appdynamics-php-agent-x64-linux-4.2.12.1.tar.bz2 /root/src/php_module/appdynamics-php-agent-x64-linux-4.2.12.1.tar.bz2
+#COPY appdynamics-php-agent-x64-linux-4.2.12.1.tar.bz2 /root/src/php_module/appdynamics-php-agent-x64-linux-4.2.12.1.tar.bz2
 COPY php7-memcached-3.0_pre20160808-r0.apk /pkg/php7-memcached-3.0_pre20160808-r0.apk
 RUN  apk add --allow-untrusted /pkg/php7-memcached-3.0_pre20160808-r0.apk 
 
@@ -121,7 +121,7 @@ RUN mkdir -p /etc/apache2/modules && \
     echo 'xdebug.idekey=idekey' >> /etc/php7/conf.d/xdebug.ini && \
     echo 'xdebug.remote_connect_back=1' >> /etc/php7/conf.d/xdebug.ini && \
     echo 'xdebug.remote_autostart=1' >> /etc/php7/conf.d/xdebug.ini && \
-    echo 'opcache.enable=0' >> /etc/php7/conf.d/opcache.ini
+    echo 'opcache.enable=0' >> /etc/php7/conf.d/00_opcache.ini
 
 COPY conf.modules.d/00-mpm.conf /etc/apache2/conf.modules.d/
 
