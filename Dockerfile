@@ -1,7 +1,6 @@
 FROM alpine:3.5
 
 ENV IGBINARY_VERSION=2.0.1
-ENV GLIBC_VERSION 2.23-r3
 
 RUN sed -i -e 's/v3\.5/edge/g' /etc/apk/repositories
 
