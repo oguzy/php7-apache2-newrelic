@@ -95,7 +95,6 @@ RUN /usr/bin/curl -q  https://pecl.php.net/get/timezonedb-2016.10.tgz -o timezon
     tar xvf timezonedb-2016.10.tgz && \
     cd timezonedb-2016.10/ && \
     apk update && \
-    apk add php7-dev autoconf gcc g++ clang make cmake && \
     /usr/bin/phpize7 && \
     ./configure --with-php-config=php-config7 && \
     /usr/bin/make && \
@@ -153,6 +152,8 @@ RUN ln -s /usr/lib/apache2/* . && \
 
 COPY httpd-foreground /usr/local/bin/
 RUN chmod a+x /usr/local/bin/httpd-foreground
+
+WORKDIR /
 
 EXPOSE 80
 CMD ["/usr/local/bin/httpd-foreground"]
