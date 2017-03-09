@@ -1,6 +1,7 @@
 FROM alpine:3.5
 
 ENV IGBINARY_VERSION=2.0.1
+ENV GLIBC_VERSION 2.23-r3
 
 RUN sed -i -e 's/v3\.5/edge/g' /etc/apk/repositories
 
@@ -75,7 +76,20 @@ RUN apk update && \
         groupmod -g 500 apache && \
         mkdir -p /root/src/php_module && \
 
-        mkdir -p /pkg
+        mkdir -p /pkg && \
+
+# Download and install glibc
+        curl -Lo /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub && \
+        curl -Lo glibc.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" && \
+        apk add glibc.apk && \
+        curl -Lo glibc-bin.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk" && \
+        apk add glibc-bin.apk && \
+        curl -Lo glibc-i18n.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-i18n-${GLIBC_VERSION}.apk" && \
+        apk add glibc-i18n.apk && \
+        /usr/glibc-compat/bin/localedef -i en_US -f UTF-8 en_US.UTF-8 && \
+        /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \
+        echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
+
 #COPY appdynamics-php-agent-x64-linux-4.2.12.1.tar.bz2 /root/src/php_module/appdynamics-php-agent-x64-linux-4.2.12.1.tar.bz2
 COPY php7-memcached-3.0_pre20160808-r0.apk /pkg/php7-memcached-3.0_pre20160808-r0.apk
 RUN  apk add --allow-untrusted /pkg/php7-memcached-3.0_pre20160808-r0.apk 
