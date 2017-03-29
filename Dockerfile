@@ -70,9 +70,6 @@ RUN apk update && \
         php7-intl \
         #
         php7-xdebug && \
-        ln -s /usr/bin/php7 /usr/bin/php && \
-        ln -s /usr/bin/php-config7 /usr/bin/php-config && \
-        ln -s /usr/bin/phpize7 /usr/bin/phpize && \
 
         mkdir -p /var/run/apache2 && \
         mkdir -p /var/www/html/public && \
