@@ -152,5 +152,5 @@ RUN chmod a+x /usr/local/bin/httpd-foreground
 
 WORKDIR /
 
-EXPOSE 80
+EXPOSE 80 81
 CMD ["/usr/local/bin/httpd-foreground"]
