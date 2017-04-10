@@ -86,6 +86,12 @@ RUN apk update && \
 COPY php7-memcached-3.0_pre20160808-r0.apk /pkg/php7-memcached-3.0_pre20160808-r0.apk
 RUN  apk add --allow-untrusted /pkg/php7-memcached-3.0_pre20160808-r0.apk 
 
+#newrelic part
+COPY newrelic-php5-7.1.0.187-linux-musl.tar.gz /root/src
+COPY newrelic-install.sh /root/src/newrelic-install.sh
+RUN sh /root/src/newrelic-install.sh
+
+
 WORKDIR /root/src/php_module
 
 RUN /usr/bin/curl -q  https://pecl.php.net/get/timezonedb-2016.10.tgz -o timezonedb-2016.10.tgz -k && \
@@ -148,9 +154,12 @@ RUN ln -s /usr/lib/apache2/* . && \
         php7-dev
 
 COPY httpd-foreground /usr/local/bin/
+COPY start_for_docker.sh /usr/local/bin
 RUN chmod a+x /usr/local/bin/httpd-foreground
+RUN chmod a+x /usr/bin/newrelic-daemon
+RUN chmod a+x /usr/local/bin/start_for_docker.sh
 
 WORKDIR /
 
 EXPOSE 80
-CMD ["/usr/local/bin/httpd-foreground"]
+CMD ["/usr/local/bin/start_for_docker.sh"]
