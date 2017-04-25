@@ -154,12 +154,9 @@ RUN ln -s /usr/lib/apache2/* . && \
         php7-dev
 
 COPY httpd-foreground /usr/local/bin/
-COPY start_for_docker.sh /usr/local/bin
 RUN chmod a+x /usr/local/bin/httpd-foreground
 RUN chmod a+x /usr/bin/newrelic-daemon
-RUN chmod a+x /usr/local/bin/start_for_docker.sh
 
 WORKDIR /
 
 EXPOSE 80 81
-CMD ["/usr/local/bin/start_for_docker.sh"]
