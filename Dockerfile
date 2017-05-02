@@ -67,9 +67,9 @@ RUN apk update && \
         icu \
         icu-libs \
         icu-dev \
-        php7-intl \
+        php7-intl && \
         #
-        php7-xdebug && \
+        #php7-xdebug && \
 
         mkdir -p /var/run/apache2 && \
         mkdir -p /var/www/html/public && \
