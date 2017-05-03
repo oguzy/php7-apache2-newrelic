@@ -128,7 +128,8 @@ COPY dockerize /usr/local/bin/dockerize
 
 # copy the modules
 RUN mkdir -p /etc/apache2/modules && \
-    mkdir -p /etc/apache2/conf.modules.d 
+    mkdir -p /etc/apache2/conf.modules.d && \
+    sed -i 's/opcache.enable=0/opcache.enable=1/' /etc/php7/conf.d/00_opcache.ini
 
     #echo "zend_extension=xdebug.so" >> /etc/php7/conf.d/xdebug.ini && \
     #echo "xdebug.remote_enable=1" >> /etc/php7/conf.d/xdebug.ini && \
