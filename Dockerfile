@@ -3,6 +3,10 @@ FROM alpine:3.5
 ENV IGBINARY_VERSION=2.0.1
 
 #RUN sed -i -e 's/v3\.5/edge/g' /etc/apk/repositories
+#
+
+ADD https://php.codecasts.rocks/php-alpine.rsa.pub /etc/apk/keys/php-alpine.rsa.pub
+RUN echo "http://php.codecasts.rocks/7.0" >> /etc/apk/repositories
 
 # Let's roll
 RUN apk update && \
