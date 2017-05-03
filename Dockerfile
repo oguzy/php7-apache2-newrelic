@@ -128,7 +128,8 @@ COPY dockerize /usr/local/bin/dockerize
 
 # copy the modules
 RUN mkdir -p /etc/apache2/modules && \
-    mkdir -p /etc/apache2/conf.modules.d && \
+    mkdir -p /etc/apache2/conf.modules.d 
+
     #echo "zend_extension=xdebug.so" >> /etc/php7/conf.d/xdebug.ini && \
     #echo "xdebug.remote_enable=1" >> /etc/php7/conf.d/xdebug.ini && \
     #echo "xdebug.remote_handler=dbgp xdebug.remote_mode=req" /etc/php7/conf.d/xdebug.ini && \
@@ -136,7 +137,7 @@ RUN mkdir -p /etc/apache2/modules && \
     #echo 'xdebug.idekey=idekey' >> /etc/php7/conf.d/xdebug.ini && \
     #echo 'xdebug.remote_connect_back=1' >> /etc/php7/conf.d/xdebug.ini && \
     #echo 'xdebug.remote_autostart=1' >> /etc/php7/conf.d/xdebug.ini && \
-    echo 'opcache.enable=0' >> /etc/php7/conf.d/00_opcache.ini
+    #echo 'opcache.enable=0' >> /etc/php7/conf.d/00_opcache.ini
 
 COPY conf.modules.d/00-mpm.conf /etc/apache2/conf.modules.d/
 
