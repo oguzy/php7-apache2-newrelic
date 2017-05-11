@@ -62,6 +62,7 @@ RUN apk update && \
         php7-wddx \
         php7-session \
         php7-mbstring \
+        php7-curl \
         musl \
         libmemcached-libs \
         libmemcached-dev \
