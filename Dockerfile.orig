@@ -2,7 +2,7 @@ FROM alpine:3.5
 
 ENV IGBINARY_VERSION=2.0.1
 
-RUN sed -i -e 's/v3\.5/edge/g' /etc/apk/repositories
+#RUN sed -i -e 's/v3\.5/edge/g' /etc/apk/repositories
 
 # Let's roll
 RUN apk update && \
@@ -13,6 +13,7 @@ RUN apk update && \
     echo "Europe/Istanbul" > /etc/timezone && \
     apk add --update \
         apache2 \
+        apache2-utils \
         curl \
         vim \
         file \
@@ -46,7 +47,7 @@ RUN apk update && \
         php7-gd \
         php7-exif \
         php7-dom \
-        ppk add php7-dev add autoconf gcc g++ clang make cmakehp7-curl \
+        php7-dev autoconf gcc g++ clang make cmake \
         php7-ctype \
         php7-common \
         php7-bz2 \
@@ -55,15 +56,41 @@ RUN apk update && \
         php7-sysvmsg \
         php7-sysvshm \
         php7-wddx \
-        php7 && \
-        rm -f /var/cache/apk/* && \
+        php7-session \
+        php7-mbstring \
+        musl \
+        libmemcached-libs \
+        libmemcached-dev \
+        zlib \
+        php7  \
+        #intl
+        icu \
+        icu-libs \
+        icu-dev \
+        php7-intl && \
+        #
+        #php7-xdebug && \
 
         mkdir -p /var/run/apache2 && \
         mkdir -p /var/www/html/public && \
         mkdir -p /var/log/apache2 && \
         usermod -u 500 apache && \
         groupmod -g 500 apache && \
-        mkdir -p /root/src/php_module
+        mkdir -p /root/src/php_module && \
+
+        mkdir -p /pkg && \
+
+        echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
+
+#COPY appdynamics-php-agent-x64-linux-4.2.12.1.tar.bz2 /root/src/php_module/appdynamics-php-agent-x64-linux-4.2.12.1.tar.bz2
+COPY php7-memcached-3.0_pre20160808-r0.apk /pkg/php7-memcached-3.0_pre20160808-r0.apk
+RUN  apk add --allow-untrusted /pkg/php7-memcached-3.0_pre20160808-r0.apk 
+
+#newrelic part
+COPY newrelic-php5-7.1.0.187-linux-musl.tar.gz /root/src
+COPY newrelic-install.sh /root/src/newrelic-install.sh
+RUN sh /root/src/newrelic-install.sh
+
 
 WORKDIR /root/src/php_module
 
@@ -71,7 +98,6 @@ RUN /usr/bin/curl -q  https://pecl.php.net/get/timezonedb-2016.10.tgz -o timezon
     tar xvf timezonedb-2016.10.tgz && \
     cd timezonedb-2016.10/ && \
     apk update && \
-    apk add php7-dev autoconf gcc g++ clang make cmake && \
     /usr/bin/phpize7 && \
     ./configure --with-php-config=php-config7 && \
     /usr/bin/make && \
@@ -86,7 +112,7 @@ RUN set -xe && \
     curl -LO https://github.com/igbinary/igbinary/archive/${IGBINARY_VERSION}.tar.gz  && \
     tar zxf ${IGBINARY_VERSION}.tar.gz && \
     cd igbinary-${IGBINARY_VERSION} && \
-    phpize && ./configure --with-php-config=php-config7 && \
+    /usr/bin/phpize7 && ./configure --with-php-config=php-config7 && \
     make && make install && \
     echo "extension=igbinary.so" > /etc/php7/conf.d/igbinary.ini && \
     cd .. && rm -rf igbinary-${IGBINARY_VERSION}  ${IGBINARY_VERSION}.tar.gz
@@ -98,7 +124,15 @@ COPY dockerize /usr/local/bin/dockerize
 
 # copy the modules
 RUN mkdir -p /etc/apache2/modules && \
-    mkdir -p /etc/apache2/conf.modules.d
+    mkdir -p /etc/apache2/conf.modules.d && \
+    #echo "zend_extension=xdebug.so" >> /etc/php7/conf.d/xdebug.ini && \
+    #echo "xdebug.remote_enable=1" >> /etc/php7/conf.d/xdebug.ini && \
+    #echo "xdebug.remote_handler=dbgp xdebug.remote_mode=req" /etc/php7/conf.d/xdebug.ini && \
+    #echo "xdebug.remote_host=127.0.0.1 xdebug.remote_port=9000" /etc/php7/conf.d/xdebug.ini && \
+    #echo 'xdebug.idekey=idekey' >> /etc/php7/conf.d/xdebug.ini && \
+    #echo 'xdebug.remote_connect_back=1' >> /etc/php7/conf.d/xdebug.ini && \
+    #echo 'xdebug.remote_autostart=1' >> /etc/php7/conf.d/xdebug.ini && \
+    echo 'opcache.enable=0' >> /etc/php7/conf.d/00_opcache.ini
 
 COPY conf.modules.d/00-mpm.conf /etc/apache2/conf.modules.d/
 
@@ -106,7 +140,7 @@ WORKDIR /etc/apache2/modules
 
 RUN ln -s /usr/lib/apache2/* . && \
     rm -rf /var/cache/apk/* && \
-    rm -rf /root/src/php_module && \
+    #rm -rf /root/src/php_module && \
     apk del --purge \
         *-dev \
         build-base \
@@ -121,6 +155,8 @@ RUN ln -s /usr/lib/apache2/* . && \
 
 COPY httpd-foreground /usr/local/bin/
 RUN chmod a+x /usr/local/bin/httpd-foreground
+RUN chmod a+x /usr/bin/newrelic-daemon
 
-EXPOSE 80
-CMD ["/usr/local/bin/httpd-foreground"]
+WORKDIR /
+
+EXPOSE 80 81
