@@ -92,7 +92,9 @@ COPY php7-memcached-3.0_pre20160808-r0.apk /pkg/php7-memcached-3.0_pre20160808-r
 RUN  apk add --allow-untrusted /pkg/php7-memcached-3.0_pre20160808-r0.apk 
 
 #newrelic part
-COPY newrelic-php5-7.1.0.187-linux-musl.tar.gz /root/src
+#COPY newrelic-php5-7.1.0.187-linux-musl.tar.gz /root/src
+#COPY newrelic-php5-7.0.0.186-linux-musl.tar.gz /root/src
+COPY newrelic-php5-7.2.0.191-linux-musl.tar.gz /root/src
 COPY newrelic-install.sh /root/src/newrelic-install.sh
 RUN ln -s /usr/bin/php7 /usr/bin/php && \
     sh /root/src/newrelic-install.sh
