@@ -14,6 +14,6 @@ y
 1395c36ef8f513749aa05c18e50abf1172b351b9
 EOF
 
-#cp /etc/newrelic/newrelic.cfg.template /etc/newrelic/newrelic.cfg
+cp /etc/newrelic/newrelic.cfg.template /etc/newrelic/newrelic.cfg
 
 cd $CURDIR
