@@ -99,6 +99,11 @@ COPY newrelic-install.sh /root/src/newrelic-install.sh
 RUN ln -s /usr/bin/php7 /usr/bin/php && \
     sh /root/src/newrelic-install.sh
 
+RUN mkdir -p /var/log/newrelic
+RUN mkdir -p /var/run/newrelic
+
+# disable New Relic by default (allows enable by ENV VAR at runtime)
+RUN mv /etc/php7/conf.d/newrelic.ini /etc/php7/conf.d/newrelic.ini.dist
 
 WORKDIR /root/src/php_module
 
