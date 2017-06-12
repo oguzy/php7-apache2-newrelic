@@ -3,6 +3,10 @@ FROM alpine:3.5
 ENV IGBINARY_VERSION=2.0.1
 
 #RUN sed -i -e 's/v3\.5/edge/g' /etc/apk/repositories
+#
+
+ADD https://php.codecasts.rocks/php-alpine.rsa.pub /etc/apk/keys/php-alpine.rsa.pub
+RUN echo "http://php.codecasts.rocks/7.0" >> /etc/apk/repositories
 
 # Let's roll
 RUN apk update && \
@@ -58,6 +62,7 @@ RUN apk update && \
         php7-wddx \
         php7-session \
         php7-mbstring \
+        php7-curl \
         musl \
         libmemcached-libs \
         libmemcached-dev \
@@ -87,9 +92,12 @@ COPY php7-memcached-3.0_pre20160808-r0.apk /pkg/php7-memcached-3.0_pre20160808-r
 RUN  apk add --allow-untrusted /pkg/php7-memcached-3.0_pre20160808-r0.apk 
 
 #newrelic part
-COPY newrelic-php5-7.1.0.187-linux-musl.tar.gz /root/src
+#COPY newrelic-php5-7.1.0.187-linux-musl.tar.gz /root/src
+#COPY newrelic-php5-7.0.0.186-linux-musl.tar.gz /root/src
+COPY newrelic-php5-7.2.0.191-linux-musl.tar.gz /root/src
 COPY newrelic-install.sh /root/src/newrelic-install.sh
-RUN sh /root/src/newrelic-install.sh
+RUN ln -s /usr/bin/php7 /usr/bin/php && \
+    sh /root/src/newrelic-install.sh
 
 
 WORKDIR /root/src/php_module
@@ -124,7 +132,9 @@ COPY dockerize /usr/local/bin/dockerize
 
 # copy the modules
 RUN mkdir -p /etc/apache2/modules && \
-    mkdir -p /etc/apache2/conf.modules.d && \
+    mkdir -p /etc/apache2/conf.modules.d
+    #sed -i 's/opcache.enable=0/opcache.enable=1/' /etc/php7/conf.d/00_opcache.ini
+
     #echo "zend_extension=xdebug.so" >> /etc/php7/conf.d/xdebug.ini && \
     #echo "xdebug.remote_enable=1" >> /etc/php7/conf.d/xdebug.ini && \
     #echo "xdebug.remote_handler=dbgp xdebug.remote_mode=req" /etc/php7/conf.d/xdebug.ini && \
@@ -132,7 +142,7 @@ RUN mkdir -p /etc/apache2/modules && \
     #echo 'xdebug.idekey=idekey' >> /etc/php7/conf.d/xdebug.ini && \
     #echo 'xdebug.remote_connect_back=1' >> /etc/php7/conf.d/xdebug.ini && \
     #echo 'xdebug.remote_autostart=1' >> /etc/php7/conf.d/xdebug.ini && \
-    echo 'opcache.enable=0' >> /etc/php7/conf.d/00_opcache.ini
+    #echo 'opcache.enable=0' >> /etc/php7/conf.d/00_opcache.ini
 
 COPY conf.modules.d/00-mpm.conf /etc/apache2/conf.modules.d/
 
@@ -157,6 +167,9 @@ COPY httpd-foreground /usr/local/bin/
 RUN chmod a+x /usr/local/bin/httpd-foreground
 RUN chmod a+x /usr/bin/newrelic-daemon
 
+COPY start_for_docker.sh /
+
 WORKDIR /
 
 EXPOSE 80 81
+CMD dockerize -stdout /var/log/apache2/exception.log -stdout /var/log/apache2/circuit-breaker.log -stdout /var/log/apache2/application.log -stdout /var/log/apache2/error.log sh /start_for_docker.sh
